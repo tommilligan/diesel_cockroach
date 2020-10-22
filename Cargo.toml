@@ -3,6 +3,10 @@ name = "diesel_cockroach"
 version = "0.1.0"
 authors = ["Tom Milligan <code@tommilligan.net>"]
 edition = "2018"
+description = "Additional Diesel ORM support for CockroachDB syntax."
+homepage = "https://github.com/tommilligan/diesel_cockroach"
+readme = "README.md"
+license = "MIT"
 
 [dependencies]
 diesel = { version = "1.4.5", default-features = false, features = ["postgres"] }
