@@ -3,5 +3,5 @@
 set -euxo pipefail
 
 cargo fmt --all -- --check
-cargo clippy --all --all-targets --all-fetaures -- -D warnings
+cargo clippy --all --all-targets --all-features -- -D warnings
 cargo test --all --locked
