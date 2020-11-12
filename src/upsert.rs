@@ -1,4 +1,4 @@
-//! Literal `UPSERT` SQL queries.
+//! Support for literal `UPSERT` SQL queries.
 
 use diesel::{
     pg::{Pg, PgConnection},
@@ -9,6 +9,11 @@ use diesel::{
     Insertable,
 };
 
+/// Creates an `UPSERT` statement for the target table.
+///
+/// You may add data by calling `values()` or `default_values()`.
+///
+/// Backends that support the `RETURNING` clause, such as PostgreSQL, can return the upserted rows by calling `.get_results` instead of `.execute`.
 pub fn upsert_into<T>(target: T) -> IncompleteUpsertStatement<T> {
     IncompleteUpsertStatement::new(target)
 }
