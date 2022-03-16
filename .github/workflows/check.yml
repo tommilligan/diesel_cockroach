@@ -1,0 +1,76 @@
+on: [pull_request]
+
+name: check
+
+jobs:
+  # Fast test before we kick off all the other jobs
+  main-test:
+    name: Main test
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Cache build files
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: fast-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install more toolchain
+        run: rustup component add rustfmt clippy
+      - name: Run tests
+        run: ./scripts/check
+
+  # Test on all supported platforms
+  matrix-test:
+    needs: main-test
+    name: Matrix test
+    strategy:
+      matrix:
+        os:
+          - ubuntu-20.04
+          # - windows-2019
+        rust:
+          - stable
+          - beta
+          # track MSRV of diesel
+          - 1.54.0
+        experimental:
+          - false
+        # Run a canary test on nightly that's allowed to fail
+        include:
+          - os: ubuntu-20.04
+            rust: nightly
+            experimental: true
+        # Don't bother retesting stable linux, we did it in the comprehensive test
+        exclude:
+          - os: ubuntu-20.04
+            rust: stable
+            experimental: false
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Cache build files
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: test-${{ matrix.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+      - name: Run tests
+        run: cargo test
