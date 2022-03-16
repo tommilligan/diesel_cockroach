@@ -4,4 +4,5 @@
 #[macro_use]
 extern crate diesel;
 
+pub mod as_of_system_time;
 pub mod upsert;
